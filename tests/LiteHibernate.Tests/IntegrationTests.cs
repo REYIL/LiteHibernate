@@ -346,7 +346,7 @@ internal static class IntegrationTests
                     Program.Equal("0 B", vm.EstimatedWriteSavings);
                     foreach (var row in vm.Applications) row.UpdateMetrics(sampleProcesses);
                     var window = new MainWindow(vm);
-                    Program.Equal(1320.0, window.MinWidth); Program.Equal(880.0, window.MinHeight);
+                    AssertMinimumWindowSize(window);
                     var content = (System.Windows.FrameworkElement)window.Content;
                     window.Content = null;
                     var preview = new System.Windows.Controls.Border
@@ -942,7 +942,7 @@ internal static class IntegrationTests
                     }
                     Program.Equal(initial!.Value, checkBox.IsChecked!.Value);
                 }
-                Program.Equal(1320.0, window.MinWidth);
+                AssertMinimumWindowSize(window);
                 var pin = Descendants<System.Windows.Controls.Button>(grid).Single(button => button.Name == "PinListButton" && button.IsVisible);
                 var pinPeer = new System.Windows.Automation.Peers.ButtonAutomationPeer(pin);
                 var pinInvoke = (System.Windows.Automation.Provider.IInvokeProvider)pinPeer.GetPattern(System.Windows.Automation.Peers.PatternInterface.Invoke)!;
@@ -1010,6 +1010,14 @@ internal static class IntegrationTests
         }) { IsBackground = true };
         thread.SetApartmentState(ApartmentState.STA); thread.Start();
         return completion.Task.WaitAsync(TimeSpan.FromSeconds(10));
+    }
+    private static void AssertMinimumWindowSize(MainWindow window)
+    {
+        // Small desktops (including CI runners) reduce the 1320x880 minimum
+        // to fit the work area with a 24-DIP margin and a 600x500 floor.
+        var workArea = System.Windows.SystemParameters.WorkArea;
+        Program.Equal(Math.Min(1320, Math.Max(600, workArea.Width - 24)), window.MinWidth);
+        Program.Equal(Math.Min(880, Math.Max(500, workArea.Height - 24)), window.MinHeight);
     }
     private static void MouseClickEvent(System.Windows.UIElement target, System.Windows.RoutedEvent routedEvent)
         => target.RaiseEvent(new System.Windows.Input.MouseButtonEventArgs(System.Windows.Input.Mouse.PrimaryDevice, 0, System.Windows.Input.MouseButton.Left)
