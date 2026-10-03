@@ -728,24 +728,34 @@ internal static class IntegrationTests
                 Program.True(vm.HasError && vm.Status.Contains("защищено") && vm.DeletedApplications.Count == 3);
                 chosen = fixture;
                 vm.RestoreCommand.Execute(missing); // Relink a moved executable and clear its duplicate tombstone.
-                Program.Equal(1, vm.Applications.Count); Program.Equal(1, vm.DeletedApplications.Count);
-                Program.Equal(43, vm.Applications[0].TimeoutSeconds); Program.Equal(missing.Rule.Id, vm.Applications[0].Rule.Id);
+                var restored = vm.Applications.Single(row => row.Rule.ExecutablePath.Equals(fixture, StringComparison.OrdinalIgnoreCase));
+                Program.Equal(1, vm.DeletedApplications.Count);
+                Program.Equal(43, restored.TimeoutSeconds); Program.Equal(missing.Rule.Id, restored.Rule.Id);
                 Program.True(!vm.RestoreCommand.CanExecute(duplicate));
-                vm.AddCommand.Execute(null); Program.Equal(1, vm.Applications.Count);
-                Program.Equal(43, vm.Applications[0].TimeoutSeconds);
+                // Background discovery may add unrelated processes after restoring an EXE.
+                // Duplicate checks must concern that EXE, not the whole machine's catalog.
+                var merge = typeof(LiteHibernate.UI.MainViewModel).GetMethod("Merge", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+                var unrelatedPath = Path.Combine(directory, "other-running-app.exe");
+                merge.Invoke(vm, [new CatalogEntry("Other running app", unrelatedPath, AppSource.Running)]);
+                Program.True(vm.Applications.Any(row => row.Rule.ExecutablePath == unrelatedPath));
+                vm.AddCommand.Execute(null);
+                Program.True(ReferenceEquals(restored, vm.Applications.Single(row => row.Rule.ExecutablePath.Equals(fixture, StringComparison.OrdinalIgnoreCase))));
+                Program.Equal(43, restored.TimeoutSeconds);
                 Program.Equal(1, storage.LoadSettings().Applications.Count);
+                Program.Equal(restored.Rule.Id, storage.LoadSettings().Applications.Single().Id);
                 Program.Equal(protectedApp.Rule.Id, storage.LoadSettings().DeletedApplications.Single().Id);
                 // An already active EXE is merged when restoring a stale deleted record.
                 using var stale = new LiteHibernate.UI.MainViewModel(storage, new()
                 { Applications = [Program.Rule(id: "Existing", path: fixture)], DeletedApplications = [Program.Rule(id: "Stale", path: fixture)] }, confirmRestoration: _ => true);
+                var existing = stale.Applications.Single();
                 stale.RestoreCommand.Execute(stale.DeletedApplications.Single());
-                Program.Equal(1, stale.Applications.Count); Program.Equal(0, stale.DeletedApplications.Count);
+                Program.True(ReferenceEquals(existing, stale.Applications.Single(row => row.Rule.ExecutablePath.Equals(fixture, StringComparison.OrdinalIgnoreCase))));
+                Program.Equal(0, stale.DeletedApplications.Count);
                 using var imported = new LiteHibernate.UI.MainViewModel(storage, new()
                 {
                     DeletedApplications = [Program.Rule(id: "imported", path: missingPath), Program.Rule(id: "same-path", path: fixture),
                         Program.Rule(id: "unrelated", path: @"C:\unrelated.exe"), Program.Rule(id: "unresolved", path: "")]
                 });
-                var merge = typeof(LiteHibernate.UI.MainViewModel).GetMethod("Merge", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
                 merge.Invoke(imported, [new CatalogEntry("unresolved", fixture, AppSource.Installed)]);
                 Program.Equal(0, imported.Applications.Count);
                 var apply = typeof(LiteHibernate.UI.MainViewModel).GetMethod("ApplyProfile", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
