@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <Authors>REYIL</Authors>
+    <Company>REYIL</Company>
+    <Product>LiteHibernate</Product>
+    <Copyright>Copyright (c) 2026 REYIL</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="Author" Value="REYIL" />
+    <AssemblyMetadata Include="AuthorUrl" Value="https://github.com/REYIL" />
+    <AssemblyMetadata Include="License" Value="MIT" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/LiteHibernate.Core/LiteHibernate.Core.csproj" />
+  <Project Path="src/LiteHibernate/LiteHibernate.csproj" />
+  <Project Path="tests/LiteHibernate.Tests/LiteHibernate.Tests.csproj" />
+  <Project Path="tests/LiteHibernate.Fixture/LiteHibernate.Fixture.csproj" />
+</Solution>

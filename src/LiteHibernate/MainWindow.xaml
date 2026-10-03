@@ -1,0 +1,303 @@
+<Window x:Class="LiteHibernate.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:LiteHibernate.UI"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="LiteHibernate" Icon="Assets/LiteHibernate.ico" Width="1320" Height="880" MinWidth="1320" MinHeight="880" WindowStartupLocation="CenterScreen"
+        WindowStyle="None" ResizeMode="CanResize" Background="#0E1420" Foreground="#EEF3FC"
+        FontFamily="Segoe UI" FontSize="12" UseLayoutRounding="True" TextOptions.TextFormattingMode="Display"
+        Closing="OnClosing" IsVisibleChanged="OnVisibleChanged">
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="44" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+  </shell:WindowChrome.WindowChrome>
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries><ResourceDictionary Source="Themes/Controls.xaml"/><ResourceDictionary Source="Assets/Brand.xaml"/></ResourceDictionary.MergedDictionaries>
+      <Style x:Key="ApplicationColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+        <Setter Property="ToolTipService.ShowDuration" Value="20000"/>
+      </Style>
+      <Style x:Key="ListPinButton" TargetType="Button" BasedOn="{StaticResource QuietButton}">
+        <Setter Property="Width" Value="28"/><Setter Property="Height" Value="28"/><Setter Property="Padding" Value="0"/>
+        <Setter Property="Foreground" Value="{StaticResource Dim}"/>
+        <Style.Triggers>
+          <DataTrigger Binding="{Binding IsListPinned}" Value="True">
+            <Setter Property="Foreground" Value="#AAC2FF"/><Setter Property="Background" Value="#243552"/><Setter Property="BorderBrush" Value="#415C88"/>
+          </DataTrigger>
+        </Style.Triggers>
+      </Style>
+      <DataTemplate x:Key="ListPinHeader">
+        <Button x:Name="PinListButton" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                Style="{StaticResource ListPinButton}" Command="{Binding ToggleListPinCommand}" ToolTip="{Binding ListPinHint}" AutomationProperties.Name="Закрепить порядок списка">
+          <Viewbox Width="16" Height="16" IsHitTestVisible="False">
+            <Canvas Width="16" Height="16">
+              <Path Width="16" Height="16" Data="M 5,1 L 11,1 M 6,1 L 6,6 L 3,9 L 3,10 L 13,10 L 13,9 L 10,6 L 10,1 M 8,10 L 8,15"
+                    Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
+                <Path.Style><Style TargetType="Path">
+                  <Setter Property="RenderTransform"><Setter.Value><RotateTransform Angle="35" CenterX="8" CenterY="8"/></Setter.Value></Setter>
+                  <Style.Triggers><DataTrigger Binding="{Binding IsListPinned}" Value="True"><Setter Property="RenderTransform"><Setter.Value><RotateTransform Angle="0" CenterX="8" CenterY="8"/></Setter.Value></Setter></DataTrigger></Style.Triggers>
+                </Style></Path.Style>
+              </Path>
+            </Canvas>
+          </Viewbox>
+        </Button>
+      </DataTemplate>
+    </ResourceDictionary>
+  </Window.Resources>
+  <Border x:Name="InteractionSurface" Focusable="True" KeyboardNavigation.IsTabStop="False" PreviewMouseDown="OnSurfaceMouseDown" BorderBrush="#2A354A" BorderThickness="1" Background="{StaticResource Surface}">
+    <Grid x:Name="WindowContent">
+      <Grid.RowDefinitions><RowDefinition Height="44"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+      <Grid Margin="16,0,5,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Text="LiteHibernate" FontSize="11" FontWeight="Medium" Foreground="#A9B9D1"/>
+          <Border Width="1" Height="12" Background="#334056" Margin="12,0"/>
+          <TextBlock Text="Для Windows" FontSize="10" Foreground="{StaticResource Dim}"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+          <Button Style="{StaticResource CaptionButton}" Content="&#xE921;" Click="OnMinimize" ToolTip="Свернуть" AutomationProperties.Name="Свернуть окно"/>
+          <Button x:Name="MaximizeCaptionButton" Style="{StaticResource CaptionButton}" Content="&#xE922;" Click="OnMaximize" ToolTip="Развернуть / восстановить" AutomationProperties.Name="Развернуть или восстановить окно"/>
+          <Button Style="{StaticResource CaptionClose}" Content="&#xE8BB;" Click="OnChromeClose" ToolTip="Свернуть в трей" AutomationProperties.Name="Свернуть в трей"/>
+        </StackPanel>
+      </Grid>
+      <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions><ColumnDefinition Width="250"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Border Background="#101724" BorderBrush="#263247" BorderThickness="0,0,1,0">
+          <Grid Margin="22,20,22,22">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="0"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <StackPanel>
+              <StackPanel Orientation="Horizontal">
+                <Image Source="{StaticResource AppIcon}" Width="44" Height="44" Margin="0,0,7,0"/>
+                <StackPanel VerticalAlignment="Center">
+                  <TextBlock Text="LiteHibernate" FontSize="17" FontWeight="SemiBold"/>
+                  <TextBlock Text="Меньше приложений – меньше нагрузка на SSD" FontSize="10" TextWrapping="Wrap" MaxWidth="148" Foreground="{StaticResource Dim}" Margin="0,4,0,0"/>
+                </StackPanel>
+              </StackPanel>
+
+            </StackPanel>
+            <Border Grid.Row="1" Background="#172134" BorderBrush="#2D3D5A" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,22,0,0">
+              <StackPanel>
+                <TextBlock Text="ГИБЕРНАЦИЯ ПРИ ЗАКРЫТИИ" Style="{StaticResource Label}" Margin="0,0,0,12"/>
+                <CheckBox Style="{StaticResource Switch}" Content="Включить" IsChecked="{Binding Enabled, Mode=OneWay}" Command="{Binding ToggleEnabledCommand}" ToolTip="{Binding ToggleLabel}" AutomationProperties.Name="Обработка закрытия крышки"/>
+                <TextBlock Text="{Binding LidAutomationDescription}" FontSize="10" Margin="0,12,0,0">
+                  <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Hint}"><Style.Triggers><DataTrigger Binding="{Binding PowerRestorePending}" Value="True"><Setter Property="Foreground" Value="#C8A96F"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                </TextBlock>
+                <TextBlock Text="При отключении прежние настройки Windows восстанавливаются." FontSize="10" Margin="0,8,0,0">
+                  <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Hint}"><Style.Triggers><DataTrigger Binding="{Binding LidAvailable}" Value="False"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                </TextBlock>
+              </StackPanel>
+            </Border>
+            <ScrollViewer Grid.Row="2" Margin="0,25,0,20" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+              <TextBlock Text="ПАРАМЕТРЫ" Style="{StaticResource Label}" Margin="0,0,0,16"/>
+              <TextBlock Text="Пауза перед закрытием программ" TextWrapping="Wrap" FontWeight="Medium"/>
+              <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="66"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBox Text="{Binding LidDelaySeconds, UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=True}" TextAlignment="Center" AutomationProperties.Name="Пауза перед закрытием программ, секунд"/>
+                <TextBlock Grid.Column="1" Text="секунд" VerticalAlignment="Center" Foreground="{StaticResource Muted}" Margin="10,0,0,0" FontSize="11"/>
+              </Grid>
+              <TextBlock Text="{Binding PauseHint}" Style="{StaticResource Hint}" FontSize="11" Margin="0,9,0,0"/>
+              <Border Height="1" Background="#263247" Margin="0,21"/>
+              <CheckBox Style="{StaticResource Switch}" Content="Автозапуск" IsChecked="{Binding AutoStartEnabled}" AutomationProperties.Name="Запускать при входе в Windows"/>
+              <TextBlock Text="При входе в Windows" Foreground="{StaticResource Dim}" FontSize="10" Margin="0,7,0,21"/>
+              <CheckBox Content="Фоновый сторож" IsChecked="{Binding WatchdogEnabled}" AutomationProperties.Name="Фоновый сторож">
+                <CheckBox.Style><Style TargetType="CheckBox" BasedOn="{StaticResource Switch}"><Style.Triggers><DataTrigger Binding="{Binding IsRunning}" Value="True"><Setter Property="IsEnabled" Value="False"/></DataTrigger></Style.Triggers></Style></CheckBox.Style>
+              </CheckBox>
+              <TextBlock Text="Вернёт настройки крышки и один раз перезапустит LiteHibernate после сбоя." Style="{StaticResource Hint}" FontSize="11" Margin="0,8,0,0"/>
+              <TextBlock Text="Без сторожа восстановление произойдёт при следующем запуске." FontSize="10" Foreground="#C8A96F" Margin="0,8,0,0">
+                <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Hint}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding WatchdogEnabled}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+              </TextBlock>
+            </StackPanel>
+            </ScrollViewer>
+            <StackPanel Grid.Row="4">
+              <Border Background="#182232" CornerRadius="8" Padding="11">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                  <TextBlock Text="&#xE7F8;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource Dim}" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="1" Text="{Binding LidStatus}" FontSize="10" Foreground="{StaticResource Muted}" TextWrapping="Wrap"/>
+                </Grid>
+              </Border>
+            </StackPanel>
+          </Grid>
+        </Border>
+        <Grid Grid.Column="1" Margin="30,24,30,24">
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+          <StackPanel>
+            <TextBlock Text="НАСТРОЙКА ГИБЕРНАЦИИ" Style="{StaticResource Label}" Foreground="{StaticResource Accent}"/>
+
+            <TextBlock Text="Выберите, какие программы закрывать перед гибернацией." Style="{StaticResource Hint}" Margin="0,7,0,0"/>
+          </StackPanel>
+          <Grid Grid.Row="1" Margin="0,24,0,23">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="1.35*"/></Grid.ColumnDefinitions>
+            <Border Background="{StaticResource Card}" BorderBrush="{StaticResource Stroke}" BorderThickness="1" CornerRadius="11" Padding="17,14">
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel><TextBlock Text="ВЫБРАНО" Style="{StaticResource Label}"/><TextBlock Text="{Binding SelectedCount}" FontSize="26" FontWeight="SemiBold" Margin="0,6,0,0"/></StackPanel>
+                <Border Grid.Column="1" Width="35" Height="35" CornerRadius="10" Background="#213455" VerticalAlignment="Center"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#9FB9FF"/></Border>
+              </Grid>
+            </Border>
+            <Border Grid.Column="2" Background="{StaticResource Card}" BorderBrush="{StaticResource Stroke}" BorderThickness="1" CornerRadius="11" Padding="17,14">
+              <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel><TextBlock Text="СЕЙЧАС ЗАПУЩЕНО" Style="{StaticResource Label}"/><TextBlock Text="{Binding RunningCount}" FontSize="26" FontWeight="SemiBold" Margin="0,6,0,0"/></StackPanel>
+                <Border Grid.Column="1" Width="35" Height="35" CornerRadius="10" Background="#193833" VerticalAlignment="Center"><TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource Green}"/></Border>
+              </Grid>
+            </Border>
+            <Border Grid.Column="4" Background="#172440" BorderBrush="#2D426A" BorderThickness="1" CornerRadius="11" Padding="17,14"
+                    ToolTip="Оценка по текущей RAM выбранных процессов, включая дочерние. Каждый процесс учитывается один раз. Фактическая экономия записи зависит от сжатия, общей памяти и поведения Windows.">
+              <StackPanel><TextBlock Text="ОЦЕНКА ЭКОНОМИИ ЗАПИСИ" Style="{StaticResource Label}" Foreground="#849BC7"/><TextBlock Text="{Binding EstimatedWriteSavings}" FontSize="26" FontWeight="SemiBold" Margin="0,6,0,0"/><TextBlock Text="При гибернации сейчас" Foreground="#849BC7" FontSize="10" Margin="0,4,0,0"/></StackPanel>
+            </Border>
+          </Grid>
+          <Grid Grid.Row="2" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="182"/><ColumnDefinition Width="12"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <Grid>
+              <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Tag="Поиск по названию или пути EXE" Padding="36,12,12,12" AutomationProperties.Name="Поиск приложений"/>
+              <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource Dim}" VerticalAlignment="Center" Margin="13,0,0,0" IsHitTestVisible="False"/>
+            </Grid>
+            <ComboBox Grid.Column="2" SelectedIndex="{Binding SourceFilter}" AutomationProperties.Name="Источник приложений">
+              <ComboBoxItem Content="Все источники"/><ComboBoxItem Content="Установленные"/><ComboBoxItem Content="Запущенные"/><ComboBoxItem Content="Добавлены вручную"/><ComboBoxItem Content="Скрытые"/>
+            </ComboBox>
+            <Button Grid.Column="4" Command="{Binding RefreshCommand}" ToolTip="Обновить список приложений" AutomationProperties.Name="Обновить список приложений">
+              <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets"/>
+            </Button>
+          </Grid>
+          <Border Grid.Row="3" Background="{StaticResource Card}" BorderBrush="{StaticResource Stroke}" BorderThickness="1" CornerRadius="12" Padding="5,2,5,5">
+            <Grid>
+              <DataGrid ItemsSource="{Binding ApplicationsView}" SelectedItem="{Binding SelectedRow}" ColumnHeaderStyle="{StaticResource ApplicationColumnHeader}"
+                        PreviewMouseWheel="OnApplicationsMouseWheel" Sorting="OnApplicationsSorting" AutomationProperties.Name="Приложения для закрытия">
+                <DataGrid.Resources><ui:BindingProxy x:Key="GridViewModel" Data="{Binding}"/></DataGrid.Resources>
+                <DataGrid.Columns>
+                  <DataGridTemplateColumn Header="" HeaderTemplate="{StaticResource ListPinHeader}" Width="60" MinWidth="60" CanUserSort="False" CanUserResize="False" Visibility="{Binding Data.ActiveColumnsVisibility, Source={StaticResource GridViewModel}}">
+                    <DataGridTemplateColumn.HeaderStyle><Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource ApplicationColumnHeader}">
+                      <Setter Property="Padding" Value="0"/>
+                      <Setter Property="ToolTip" Value="{Binding DataContext.ListPinHint, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                      <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="DataGridColumnHeader">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="#263247" BorderThickness="0,0,0,1">
+                          <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                      </ControlTemplate></Setter.Value></Setter>
+                    </Style></DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate><DataTemplate><CheckBox IsChecked="{Binding Selected, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSelect}" HorizontalAlignment="Center" AutomationProperties.Name="{Binding Name}"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="ПРИЛОЖЕНИЕ" Width="*" MinWidth="170" SortMemberPath="Name">
+                    <DataGridTemplateColumn.HeaderTemplate><DataTemplate>
+                      <StackPanel Orientation="Horizontal">
+                        <ContentPresenter Content="" ContentTemplate="{StaticResource ListPinHeader}" Margin="0,0,8,0"
+                                          Visibility="{Binding DataContext.DeletedColumnsVisibility, RelativeSource={RelativeSource AncestorType=DataGrid}}"/>
+                        <TextBlock Text="{Binding}" VerticalAlignment="Center"/>
+                      </StackPanel>
+                    </DataTemplate></DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.HeaderStyle><Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource ApplicationColumnHeader}"><Setter Property="ToolTip" Value="Название приложения, текущий статус и путь к EXE. Нажмите заголовок, чтобы отсортировать список по названию."/></Style></DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                      <Grid ToolTip="{Binding PathDisplay}">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Border Width="30" Height="30" CornerRadius="8" Background="#233651"><TextBlock Text="{Binding Initial}" Foreground="#ABC4FF" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="9,0,0,0">
+                          <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <Grid HorizontalAlignment="Left">
+                              <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                              <TextBlock x:Name="AppName" Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                              <Border x:Name="StatusTag" Grid.Column="1" Height="{Binding ActualHeight, ElementName=AppName}" CornerRadius="4" Padding="6,0" Margin="9,0,0,0" VerticalAlignment="Center">
+                                <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="#222D40"/><Style.Triggers><DataTrigger Binding="{Binding Status}" Value="Running"><Setter Property="Background" Value="#1A3832"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                <TextBlock Text="{Binding Status}" FontSize="9" VerticalAlignment="Center">
+                                  <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Foreground" Value="#92A3BE"/><Style.Triggers><DataTrigger Binding="{Binding Status}" Value="Running"><Setter Property="Foreground" Value="{StaticResource Green}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                </TextBlock>
+                              </Border>
+                            </Grid>
+                            <Button x:Name="RemoveAppButton" Grid.Column="1" Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"
+                                    Foreground="#E9A2AB" Width="22" Height="22" Padding="0" Margin="8,0,0,0" VerticalAlignment="Center" ToolTip="Скрыть из списка" AutomationProperties.Name="Скрыть приложение из списка">
+                              <Button.Style><Style TargetType="Button" BasedOn="{StaticResource QuietButton}"><Setter Property="Visibility" Value="Hidden"/><Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                <DataTrigger Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                <DataTrigger Binding="{Binding IsDeleted}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                              </Style.Triggers></Style></Button.Style>
+                              <Viewbox Width="14" Height="14" IsHitTestVisible="False">
+                                <Canvas Width="16" Height="16">
+                                  <Path x:Name="RemoveAppIcon" Width="16" Height="16" Data="M 2,8 C 4,4 12,4 14,8 C 12,12 4,12 2,8 Z M 10,8 A 2,2 0 1 1 6,8 A 2,2 0 1 1 10,8 M 2,2 L 14,14"
+                                        Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                </Canvas>
+                              </Viewbox>
+                            </Button>
+                          </Grid>
+                          <Grid Margin="0,5,0,0">
+                            <TextBlock Text="{Binding PathDisplay}" FontSize="10" Foreground="{StaticResource Dim}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center">
+                              <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding CanSelect}" Value="False"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                            </TextBlock>
+                            <Button Command="{Binding DataContext.LinkCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Content="Найти файл…"
+                                    Padding="0" FontSize="10" Foreground="{StaticResource Dim}" HorizontalAlignment="Left" Height="16" ToolTip="Выбрать EXE для этого приложения">
+                              <Button.Style><Style TargetType="Button" BasedOn="{StaticResource QuietButton}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding CanSelect}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger><DataTrigger Binding="{Binding IsDeleted}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Button.Style>
+                            </Button>
+                          </Grid>
+                        </StackPanel>
+                      </Grid>
+                    </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTextColumn Header="RAM" Binding="{Binding Ram}" SortMemberPath="RamBytes" Width="87" IsReadOnly="True">
+                    <DataGridTextColumn.HeaderStyle><Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource ApplicationColumnHeader}"><Setter Property="ToolTip" Value="Текущее потребление оперативной памяти приложением и его дочерними процессами. Нажмите заголовок, чтобы отсортировать по объёму памяти."/></Style></DataGridTextColumn.HeaderStyle>
+                    <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="FontFamily" Value="Consolas"/><Setter Property="FontSize" Value="11"/><Setter Property="Foreground" Value="#B3C3DD"/></Style></DataGridTextColumn.ElementStyle>
+                  </DataGridTextColumn>
+                  <DataGridTemplateColumn Header="ОЖИДАНИЕ, С" Width="104" Visibility="{Binding Data.ActiveColumnsVisibility, Source={StaticResource GridViewModel}}">
+                    <DataGridTemplateColumn.HeaderStyle><Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource ApplicationColumnHeader}"><Setter Property="ToolTip" Value="Максимальное ожидание завершения. Если все выбранные программы завершатся раньше, гибернация начнётся сразу."/></Style></DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate><DataTemplate><TextBox Text="{Binding TimeoutSeconds, UpdateSourceTrigger=LostFocus, ValidatesOnExceptions=True}" Padding="5,8" TextAlignment="Center" IsEnabled="{Binding CanSelect}" AutomationProperties.Name="Таймаут завершения приложения"/></DataTemplate></DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="ПОСЛЕ ТАЙМАУТА" Width="206" Visibility="{Binding Data.ActiveColumnsVisibility, Source={StaticResource GridViewModel}}">
+                    <DataGridTemplateColumn.HeaderStyle><Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource ApplicationColumnHeader}"><Setter Property="ToolTip" Value="Что делать, если приложение не завершилось за время ожидания: отменить гибернацию, завершить процесс принудительно или продолжить гибернацию с работающим приложением."/></Style></DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                      <ComboBox ItemsSource="{x:Static ui:MainViewModel.Policies}" DisplayMemberPath="Label" SelectedValuePath="Value" SelectedValue="{Binding Policy, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSelect}" Height="34" FontSize="10" AutomationProperties.Name="Политика после таймаута"/>
+                    </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="ВОЗОБНОВИТЬ" Width="118" CanUserSort="False" Visibility="{Binding Data.ActiveColumnsVisibility, Source={StaticResource GridViewModel}}">
+                    <DataGridTemplateColumn.HeaderStyle><Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource ApplicationColumnHeader}"><Setter Property="ToolTip" Value="Открыть приложение после выхода из гибернации, если оно работало и завершилось в этом сценарии. Уже работающие приложения повторно не запускаются. Восстановление документов и вкладок зависит от самого приложения."/></Style></DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                      <CheckBox x:Name="ReopenCheckBox" IsChecked="{Binding ReopenAfterHibernate, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanSelect}" HorizontalAlignment="Center"
+                                ToolTip="Открывать это приложение после гибернации" AutomationProperties.Name="Открывать приложение после гибернации"/>
+                    </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                  <DataGridTemplateColumn Header="ПОКАЗАТЬ" Width="128" CanUserSort="False" Visibility="{Binding Data.DeletedColumnsVisibility, Source={StaticResource GridViewModel}}">
+                    <DataGridTemplateColumn.HeaderStyle><Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource ApplicationColumnHeader}"><Setter Property="ToolTip" Value="Показать приложение в основном списке с прежними правилами. Путь к EXE и наличие приложения проверяются заново."/></Style></DataGridTemplateColumn.HeaderStyle>
+                    <DataGridTemplateColumn.CellTemplate><DataTemplate>
+                      <Button x:Name="RestoreAppButton" Command="{Binding DataContext.RestoreCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}"
+                              Style="{StaticResource QuietButton}" Foreground="#9AD9C0" Width="28" Height="28" Padding="0" HorizontalAlignment="Center" ToolTip="Показать в списке" AutomationProperties.Name="Показать приложение в списке">
+                        <Viewbox Width="14" Height="14" IsHitTestVisible="False"><Canvas Width="16" Height="16">
+                          <Path Width="16" Height="16" Data="M 2,8 C 4,4 12,4 14,8 C 12,12 4,12 2,8 Z M 10,8 A 2,2 0 1 1 6,8 A 2,2 0 1 1 10,8" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                        </Canvas></Viewbox>
+                      </Button>
+                    </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                  </DataGridTemplateColumn>
+                </DataGrid.Columns>
+              </DataGrid>
+              <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding ApplicationsView.IsEmpty}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="26" Foreground="{StaticResource Dim}" HorizontalAlignment="Center" Margin="0,0,0,14"/>
+                <TextBlock Text="{Binding EmptyListTitle}" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding EmptyListHint}" Style="{StaticResource Hint}" FontSize="11" Margin="0,7,0,0"/>
+              </StackPanel>
+            </Grid>
+          </Border>
+          <StackPanel Grid.Row="4" Margin="0,14,0,0">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="8"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Button Command="{Binding AddCommand}" Height="40" Padding="12,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                  <Grid Width="14" Height="14" Margin="0,0,8,0" VerticalAlignment="Center">
+                    <Path Data="M 7,2 L 7,12 M 2,7 L 12,7" Stroke="#EEF3FC" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                  </Grid>
+                  <TextBlock Text="Добавить приложение" VerticalAlignment="Center"/>
+                </StackPanel>
+              </Button>
+              <Button Grid.Column="2" Command="{Binding ExportCommand}" Content="Экспортировать" Height="40" Padding="12,0" ToolTip="Сохранить приложения, правила и паузу в JSON"/>
+              <Button Grid.Column="4" Command="{Binding ImportCommand}" Content="Импортировать" Height="40" Padding="12,0" ToolTip="Заменить список приложений, правила и паузу из JSON"/>
+              <Button Grid.Column="6" Command="{Binding ScenarioCommand}" Style="{StaticResource ScenarioButton}" Height="40" Width="262" Padding="12,0" AutomationProperties.Name="{Binding ScenarioButtonText}">
+                <Grid>
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <TextBlock Text="{Binding ScenarioButtonText}" Foreground="White" FontSize="12" FontWeight="Medium" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="1" Text="{Binding ScenarioCounter}" Foreground="White" FontFamily="Consolas" FontSize="12" TextAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Margin" Value="0"/><Setter Property="MinWidth" Value="0"/><Style.Triggers><DataTrigger Binding="{Binding ScenarioActive}" Value="True"><Setter Property="Margin" Value="8,0,0,0"/><Setter Property="MinWidth" Value="44"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                  </TextBlock>
+                </Grid>
+              </Button>
+            </Grid>
+          </StackPanel>
+          <TextBlock Grid.Row="5" Text="Закрытие окна сворачивает в трей · Полный выход – через меню трея" FontSize="10" Foreground="#5C6E8A" HorizontalAlignment="Center" Margin="0,12,0,0"/>        </Grid>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

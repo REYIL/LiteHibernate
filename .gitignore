@@ -1,0 +1,38 @@
+# Generated build and release files
+**/bin/
+**/obj/
+/artifacts/*
+!/artifacts/screenshot.png
+**/TestResults/
+**/coverage/
+*.pdb
+
+# Local helper scripts; keep the portable release builder
+/scripts/*
+!/scripts/Publish-Portable.ps1
+
+# Local IDE and developer state
+/PROJECT_NOTES.local.md
+**/.vs/
+**/.idea/
+**/.vscode/
+/.codex/
+/.agents/
+/.aws/
+.env
+.env.*
+!.env.example
+*.user
+*.suo
+*.rsuser
+*.userosscache
+*.sln.docstates
+
+# Temporary files and logs
+*.log
+*.tmp
+*.bak
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.orig

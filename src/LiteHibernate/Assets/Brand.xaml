@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="AppIcon">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Geometry="M 0,0 L 256,0 256,256 0,256 Z" Brush="Transparent"/>
+        <GeometryDrawing>
+          <GeometryDrawing.Brush><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#8D83FF" Offset="0"/><GradientStop Color="#557BF0" Offset="0.5"/><GradientStop Color="#314EC4" Offset="1"/></LinearGradientBrush></GeometryDrawing.Brush>
+          <GeometryDrawing.Geometry><RectangleGeometry Rect="12,12,232,232" RadiusX="60" RadiusY="60"/></GeometryDrawing.Geometry>
+          <GeometryDrawing.Pen><Pen Brush="#668FAAFF" Thickness="2"/></GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M 145,55 C 92,40 49,82 59,133 C 69,186 129,210 171,174 C 127,188 88,156 88,116 C 88,88 112,64 145,55 Z">
+          <GeometryDrawing.Brush><LinearGradientBrush StartPoint="0,0" EndPoint="0.7,1"><GradientStop Color="White" Offset="0"/><GradientStop Color="#DCE9FF" Offset="1"/></LinearGradientBrush></GeometryDrawing.Brush>
+        </GeometryDrawing>
+        <GeometryDrawing Geometry="M 175,94 L 175,151 M 158,136 L 175,153 L 192,136">
+          <GeometryDrawing.Pen><Pen Brush="#B6FFEB" Thickness="14" StartLineCap="Round" EndLineCap="Round" LineJoin="Round"/></GeometryDrawing.Pen>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#D8DFFF" Geometry="M 183,49 L 186,58 L 195,61 L 186,64 L 183,73 L 180,64 L 171,61 L 180,58 Z"/>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>
